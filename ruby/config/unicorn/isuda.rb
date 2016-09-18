@@ -2,6 +2,7 @@ require 'logger'
 
 worker_processes 20
 preload_app true
+listem '/tmp/app.sock'
 
 timeout 120
 
