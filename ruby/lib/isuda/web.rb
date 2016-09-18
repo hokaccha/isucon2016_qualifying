@@ -134,14 +134,9 @@ module Isuda
             result << '</a>'
             idx = pos + keyword.length
           end
-        }
-        escaped_content = Rack::Utils.escape_html(hashed_content)
-        kw2hash.each do |(keyword, hash)|
-          keyword_url = url("/keyword/#{Rack::Utils.escape_path(keyword)}")
-          anchor = '<a href="%s">%s</a>' % [keyword_url, Rack::Utils.escape_html(keyword)]
-          escaped_content.gsub!(hash, anchor)
         end
-        escaped_content.gsub(/\n/, "<br />\n")
+        result << content[idx, content.length]
+        result.join
       end
 
       def uri_escape(str)
