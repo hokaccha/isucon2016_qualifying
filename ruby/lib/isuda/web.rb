@@ -280,7 +280,7 @@ module Isuda
       redirect_found '/'
     end
 
-    post '/isuda/stars' do
+    post '/stars' do
       keyword = params[:keyword]
       db.xquery(%| select * from entry where keyword = ? |, keyword).first or halt(404)
 

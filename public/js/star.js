@@ -6,7 +6,7 @@ $('.js-add-star').on('click', function() {
         alert('Please login.');
         return
     }
-    $.post('/isuda/stars', {
+    $.post('/stars', {
         keyword: keyword,
         user: userName
     }).done(function() {
