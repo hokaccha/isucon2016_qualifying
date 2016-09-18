@@ -100,22 +100,34 @@ module Isuda
       end
 
       def htmlify(content)
-        keywords = db.xquery(%| select * from entry order by character_length(keyword) desc |)
-        pattern = keywords.map {|k| Regexp.escape(k[:keyword]) }.join('|')
-        kw2hash = {}
-        hashed_content = content.gsub(/(#{pattern})/) {|m|
-          matched_keyword = $1
-          "isuda_#{Digest::SHA1.hexdigest(matched_keyword)}".tap do |hash|
-            kw2hash[matched_keyword] = hash
+        entries = db.xquery(%| select keyword from entry order by character_length(keyword) |)
+        keywords = entries.map {|entry| entry[:keyword]}
+
+        keywords << "\n"
+        matcher = AhoCorasick.new(keywords)
+        matcher.match(content)
+        idx = 0
+        result = []
+        matcher.result.each do |pos, ary|
+          prefix = content[idx, pos - idx]
+          result << prefix
+
+          keyword = ary[0]
+          if keyword == "\n"
+            result << "<br />\n"
+            idx = pos + 1
+          else
+            keyword_url = url("/keyword/#{Rack::Utils.escape_path(keyword)}")
+            result << '<a href="'
+            result << keyword_url
+            result << '">'
+            result << Rack::Utils.escape_html(keyword)
+            result << '</a>'
+            idx = pos + keyword.length
           end
-        }
-        escaped_content = Rack::Utils.escape_html(hashed_content)
-        kw2hash.each do |(keyword, hash)|
-          keyword_url = url("/keyword/#{Rack::Utils.escape_path(keyword)}")
-          anchor = '<a href="%s">%s</a>' % [keyword_url, Rack::Utils.escape_html(keyword)]
-          escaped_content.gsub!(hash, anchor)
         end
-        escaped_content.gsub(/\n/, "<br />\n")
+        result << content[idx, content.length]
+        result.join
       end
 
       def uri_escape(str)
@@ -289,5 +301,91 @@ module Isuda
       content_type :json
       JSON.generate(result: 'ok')
     end
+  end
+end
+
+class AhoCorasick
+  def initialize(*args)
+    terms = terms_for(args)
+    @root = TreeNode.new
+    @result = []
+    unsafe_insert(terms)
+    create_suffix_links
+  end
+
+  attr_reader :result
+  def match(string)
+    matches = []
+    node = string.each_char.with_index.inject(@root) do |node, (char, idx)|
+      if node
+        matches += node.matches
+      end
+      n = (node && node.find(char.to_sym, idx)) || @root.find(char.to_sym, idx)
+      if n && n.matches.length > 0
+        @result << [idx - n.matches[0].length + 1, n.matches]
+      end
+      n
+    end
+    matches += node.matches if node
+    return matches
+  end
+
+  def insert(*args)
+    terms = terms_for(args)
+    unsafe_insert(terms)
+    create_suffix_links
+  end
+
+  private
+
+  def terms_for(args)
+    if args.length == 1 && args[0].is_a?(Array)
+      args[0]
+    else
+      args
+    end
+  end
+
+  def unsafe_insert(terms)
+    terms.each do |t|
+      t.each_char.inject(@root) {|node, char| node.child_for(char.to_sym) }.add_match(t)
+    end
+  end
+
+  def create_suffix_links
+    queue = @root.children.to_a.dup
+    while !queue.empty?
+      char, node = queue.shift
+      node.suffix = node.parent == @root ? @root : (node.parent.suffix && node.parent.suffix.children[char.to_sym])
+      node.children.to_a.each do |entry|
+        queue.push(entry)
+      end
+    end
+  end
+
+  class TreeNode
+    def initialize(parent=nil)
+      @parent = parent
+      @suffix = nil
+      @matches = []
+      @children = {}
+    end
+
+    attr_reader :matches, :children, :parent
+    attr_accessor :suffix
+
+
+    def find(char, idx)
+      @children[char.to_sym] || (suffix && suffix.find(char.to_sym, idx))
+    end
+
+    def add_match(str)
+      @matches << str
+    end
+
+    def child_for(char)
+      @children[char.to_sym] ||= TreeNode.new(self)
+    end
+
   end
 end
