@@ -13,4 +13,3 @@ bundle install
 sudo /bin/sh -c '> /var/log/nginx/access.log'
 sudo systemctl restart nginx
 sudo systemctl restart isuda.ruby
-sudo systemctl restart isutar.ruby
