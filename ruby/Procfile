@@ -1,0 +1,2 @@
+isuda: rackup isuda.ru --port 5000
+isutar: rackup isutar.ru --port 5001
