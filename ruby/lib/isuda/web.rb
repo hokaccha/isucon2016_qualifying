@@ -159,12 +159,12 @@ module Isuda
         users[id - 1]
       end
 
-      def html_by_keyword(keyword)
+      def html_by_keyword(keyword, description = nil)
         key = redis_key_for_html(keyword)
         cache = redis.get(key)
         return cache if cache
 
-        description = db.xquery(%| select description from entry where keyword = ? LIMIT 1 |, keyword).first[:description]
+        description ||= db.xquery(%| select description from entry where keyword = ? LIMIT 1 |, keyword).first[:description]
         html = htmlify(description)
         redis.set(key, html)
         html
@@ -180,6 +180,11 @@ module Isuda
     get '/initialize' do
       db.xquery(%| DELETE FROM entry WHERE id > 7101 |)
       redis.flushall
+
+      db.query('select keyword, html from entry').each do |entry|
+        key = redis_key_for_html(entry[:keyword])
+        redis.set(key, entry[:html])
+      end
 
       content_type :json
       JSON.generate(result: 'ok')
