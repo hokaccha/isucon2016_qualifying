@@ -144,7 +144,7 @@ module Isuda
           [user[:name], user]
         end.to_h
 
-        @user_by_name[name].first
+        @user_by_name[name]
       end
 
       def user_by_id(id)
