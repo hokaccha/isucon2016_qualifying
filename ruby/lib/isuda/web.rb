@@ -37,7 +37,7 @@ module Isuda
       condition {
         user_id = session[:user_id]
         if user_id
-          user = db.xquery(%| select name from user where id = ? |, user_id).first
+          user = user_by_id(user_id)
           @user_id = user_id
           @user_name = user[:name]
           halt(403) unless @user_name
@@ -134,6 +134,22 @@ module Isuda
       def redirect_found(path)
         redirect(path, 302)
       end
+
+      def users
+        @users ||= db.query('select id, name, salt, password from user order by id').to_a
+      end
+
+      def user_by_name(name)
+        @user_by_name ||= users.map do |user|
+          [user[:name], user]
+        end.to_h
+
+        @user_by_name[name].first
+      end
+
+      def user_by_id(id)
+        users[id - 1]
+      end
     end
 
     get '/initialize' do
@@ -205,7 +221,7 @@ module Isuda
 
     post '/login' do
       name = params[:name]
-      user = db.xquery(%| select * from user where name = ? |, name).first
+      user = user_by_name(name)
       halt(403) unless user
       halt(403) unless user[:password] == encode_with_salt(password: params[:password], salt: user[:salt])
 
