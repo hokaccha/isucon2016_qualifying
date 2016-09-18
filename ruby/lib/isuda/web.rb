@@ -123,12 +123,11 @@ module Isuda
       end
 
       def load_stars(keyword)
-        isutar_url = URI(settings.isutar_origin)
-        isutar_url.path = '/stars'
-        isutar_url.query = URI.encode_www_form(keyword: keyword)
-        body = Net::HTTP.get(isutar_url)
-        stars_res = JSON.parse(body)
-        stars_res['stars']
+        redis.lrange(redis_key_for_star(keyword), 0, -1)
+      end
+
+      def redis_key_for_star(keyword)
+        "star_#{Digest::SHA1.hexdigest(keyword)}"
       end
 
       def redirect_found(path)
@@ -277,6 +276,16 @@ module Isuda
       db.xquery(%| DELETE FROM entry WHERE keyword = ? |, keyword)
 
       redirect_found '/'
+    end
+
+    post '/isuda/stars' do
+      keyword = params[:keyword]
+      db.xquery(%| select * from entry where keyword = ? |, keyword).first or halt(404)
+
+      redis.rpush(redis_key_for_star(keyword), params[:user])
+
+      content_type :json
+      JSON.generate(result: 'ok')
     end
   end
 end
