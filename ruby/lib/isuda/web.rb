@@ -99,9 +99,12 @@ module Isuda
         ! validation['valid']
       end
 
+      def regexp_keywords
+        @regexp_keywords ||= db.xquery('select keyword from entry order by character_length(keyword) desc').map {|k| Regexp.escape(k[:keyword]) }
+      end
+
       def htmlify(content)
-        keywords = db.xquery(%| select * from entry order by character_length(keyword) desc |)
-        pattern = keywords.map {|k| Regexp.escape(k[:keyword]) }.join('|')
+        pattern = regexp_keywords.join('|')
         kw2hash = {}
         hashed_content = content.gsub(/(#{pattern})/) {|m|
           matched_keyword = $1
@@ -275,6 +278,7 @@ module Isuda
         keywords = db.prepare("select keyword from entry where description like ?").execute("%#{keyword}%").map do |entry|
           entry[:keyword]
         end
+        regexp_keywords.push(Regexp.escape(keyword))
       rescue Mysql2::Error => err
         raise err unless err.to_s.include? 'Duplicate entry'
         db.prepare(%|
