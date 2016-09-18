@@ -1,6 +1,6 @@
 require 'logger'
 
-worker_processes 5
+worker_processes 20
 preload_app true
 
 timeout 120
