@@ -1,0 +1,53 @@
+-- MySQL dump 10.13  Distrib 5.7.15, for Linux (x86_64)
+--
+-- Host: localhost    Database: isutar
+-- ------------------------------------------------------
+-- Server version	5.7.15-0ubuntu0.16.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `star`
+--
+
+DROP TABLE IF EXISTS `star`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `star` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `keyword` varchar(191) COLLATE utf8mb4_bin NOT NULL,
+  `user_name` varchar(191) COLLATE utf8mb4_bin NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `star`
+--
+
+LOCK TABLES `star` WRITE;
+/*!40000 ALTER TABLE `star` DISABLE KEYS */;
+INSERT INTO `star` VALUES (1,'技術職員','norayuni','2016-09-18 10:15:23'),(2,'吉富町','norayuni','2016-09-18 10:15:23'),(3,'塩畑弘之','norayuni','2016-09-18 10:15:23'),(4,'チュウゴクグリ','norayuni','2016-09-18 10:15:24'),(5,'蔵王町','norayuni','2016-09-18 10:15:24'),(6,'女島灯台','norayuni','2016-09-18 10:15:24'),(7,'アリストブロス1世','norayuni','2016-09-18 10:15:25'),(8,'代官町駅','norayuni','2016-09-18 10:15:25'),(9,'河端龍','norayuni','2016-09-18 10:15:25'),(10,'熱塩循環','norayuni','2016-09-18 10:15:25'),(11,'473年','haazime','2016-09-18 10:15:32'),(12,'ウーズ','haazime','2016-09-18 10:15:34'),(13,'分散開発','haazime','2016-09-18 10:15:35'),(14,'473年','miyagawa','2016-09-18 10:15:37'),(15,'平尾山','haazime','2016-09-18 10:15:37'),(16,'ウーズ','miyagawa','2016-09-18 10:15:38'),(17,'技術職員','haazime','2016-09-18 10:15:39'),(18,'内田修平','miyagawa','2016-09-18 10:15:39'),(19,'吉富町','haazime','2016-09-18 10:15:40'),(20,'イギリス政府','miyagawa','2016-09-18 10:15:40'),(21,'塩畑弘之','haazime','2016-09-18 10:15:42'),(22,'分散開発','miyagawa','2016-09-18 10:15:42'),(23,'チュウゴクグリ','haazime','2016-09-18 10:15:42'),(24,'平尾山','miyagawa','2016-09-18 10:15:43'),(25,'蔵王町','haazime','2016-09-18 10:15:44'),(26,'技術職員','miyagawa','2016-09-18 10:15:45'),(27,'女島灯台','haazime','2016-09-18 10:15:45'),(28,'吉富町','miyagawa','2016-09-18 10:15:46'),(29,'塩畑弘之','miyagawa','2016-09-18 10:15:49'),(30,'巨大基数','horiuchi','2016-09-18 10:15:57'),(31,'岡山県道86号作東インター線','hirata','2016-09-18 10:15:58'),(32,'輪状甲状筋','horiuchi','2016-09-18 10:15:58'),(33,'巨大基数','hirata','2016-09-18 10:16:00'),(34,'北消防署','horiuchi','2016-09-18 10:16:01'),(35,'輪状甲状筋','hirata','2016-09-18 10:16:01'),(36,'491年','horiuchi','2016-09-18 10:16:02'),(37,'北消防署','hirata','2016-09-18 10:16:02'),(38,'473年','horiuchi','2016-09-18 10:16:04'),(39,'491年','hirata','2016-09-18 10:16:05'),(40,'ウーズ','horiuchi','2016-09-18 10:16:05'),(41,'内田修平','horiuchi','2016-09-18 10:16:06'),(42,'473年','hirata','2016-09-18 10:16:06'),(43,'イギリス政府','horiuchi','2016-09-18 10:16:10'),(44,'ウーズ','hirata','2016-09-18 10:16:10'),(45,'八田小学校','txiwasaki','2016-09-18 10:16:14'),(46,'八田小学校','dena','2016-09-18 10:16:15'),(47,'大網白里市','txiwasaki','2016-09-18 10:16:16'),(48,'大網白里市','dena','2016-09-18 10:16:17'),(49,'トイズ','txiwasaki','2016-09-18 10:16:17'),(50,'トイズ','dena','2016-09-18 10:16:18'),(51,'南蟹谷村','txiwasaki','2016-09-18 10:16:19'),(52,'南蟹谷村','dena','2016-09-18 10:16:20'),(53,'菅山かおる','txiwasaki','2016-09-18 10:16:21'),(54,'菅山かおる','dena','2016-09-18 10:16:21'),(55,'岡山県道86号作東インター線','txiwasaki','2016-09-18 10:16:21'),(56,'岡山県道86号作東インター線','dena','2016-09-18 10:16:22'),(57,'巨大基数','txiwasaki','2016-09-18 10:16:22'),(58,'巨大基数','dena','2016-09-18 10:16:22'),(59,'輪状甲状筋','txiwasaki','2016-09-18 10:16:22'),(60,'輪状甲状筋','dena','2016-09-18 10:16:23'),(61,'北消防署','txiwasaki','2016-09-18 10:16:23'),(62,'北消防署','dena','2016-09-18 10:16:23'),(63,'491年','txiwasaki','2016-09-18 10:16:23'),(64,'491年','dena','2016-09-18 10:16:24');
+/*!40000 ALTER TABLE `star` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2016-09-18 10:28:03
