@@ -132,6 +132,10 @@ module Isuda
         "star_#{Digest::SHA1.hexdigest(keyword)}"
       end
 
+      def redis_key_for_html(keyword)
+        "html_#{Digest::SHA1.hexdigest(keyword)}"
+      end
+
       def redirect_found(path)
         redirect(path, 302)
       end
@@ -151,6 +155,23 @@ module Isuda
       def user_by_id(id)
         users[id - 1]
       end
+
+      def html_by_keyword(keyword)
+        key = redis_key_for_html(keyword)
+        cache = redis.get(key)
+        return cache if cache
+
+        description = db.xquery(%| select description from entry where keyword = ? LIMIT 1 |, keyword).first[:description]
+        html = htmlify(description)
+        redis.set(key, html)
+        html
+      end
+
+      def remove_html_cache(keywords)
+        keywords.each do |keyword|
+          redis.del(redis_key_for_html(keyword))
+        end
+      end
     end
 
     get '/initialize' do
@@ -166,13 +187,13 @@ module Isuda
       page = (params[:page] || 1).to_i
 
       entries = db.xquery(%|
-        SELECT * FROM entry
+        SELECT keyword FROM entry
         ORDER BY updated_at DESC
         LIMIT #{per_page}
         OFFSET #{per_page * (page - 1)}
       |)
       entries.each do |entry|
-        entry[:html] = htmlify(entry[:description])
+        entry[:html] = html_by_keyword(entry[:keyword])
         entry[:stars] = load_stars(entry[:keyword])
       end
 
@@ -248,15 +269,21 @@ module Isuda
         author_id = ?, keyword = ?, description = ?, updated_at = NOW()
       |, *bound)
 
+      keywords = db.prepare("select keyword from entry where description like ?").execute("%#{keyword}%").map do |entry|
+        entry[:keyword]
+      end
+
+      remove_html_cache(keywords)
+
       redirect_found '/'
     end
 
     get '/keyword/:keyword', set_name: true do
       keyword = params[:keyword] or halt(400)
 
-      entry = db.xquery(%| select * from entry where keyword = ? LIMIT 1 |, keyword).first or halt(404)
+      entry = db.xquery(%| select keyword from entry where keyword = ? LIMIT 1 |, keyword).first or halt(404)
       entry[:stars] = load_stars(entry[:keyword])
-      entry[:html] = htmlify(entry[:description])
+      entry[:html] = html_by_keyword(keyword)
 
       locals = {
         entry: entry,
