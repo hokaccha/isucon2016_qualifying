@@ -1,4 +1,4 @@
-worker_processes 32
+worker_processes 20
 preload_app true
 listen '/tmp/app.sock'
 
