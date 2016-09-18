@@ -261,16 +261,30 @@ module Isuda
       description = params[:description]
       halt(400) if is_spam_content(description) || is_spam_content(keyword)
 
-      bound = [@user_id, keyword, description] * 2
-      db.xquery(%|
-        INSERT INTO entry (author_id, keyword, description, created_at, updated_at)
-        VALUES (?, ?, ?, NOW(), NOW())
-        ON DUPLICATE KEY UPDATE
-        author_id = ?, keyword = ?, description = ?, updated_at = NOW()
-      |, *bound)
-
-      keywords = db.prepare("select keyword from entry where description like ?").execute("%#{keyword}%").map do |entry|
-        entry[:keyword]
+      begin
+        db.prepare(%|
+          insert into entry (
+            author_id,
+            keyword,
+            description,
+            created_at,
+            updated_at
+          )
+          values (?, ?, ?, NOW(), NOW())
+        |).execute(@user_id, keyword, description)
+        keywords = db.prepare("select keyword from entry where description like ?").execute("%#{keyword}%").map do |entry|
+          entry[:keyword]
+        end
+      rescue Mysql2::Error => err
+        raise err unless err.to_s.include? 'Duplicate entry'
+        db.prepare(%|
+          update entry set
+            author_id = ?,
+            description = ?,
+            updated_at = NOW()
+          where keyword = ?
+        |).execute(@user_id, description, keyword)
+        keywords = [keyword]
       end
 
       remove_html_cache(keywords)
