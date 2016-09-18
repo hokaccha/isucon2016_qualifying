@@ -170,7 +170,7 @@ module Isuda
 
       entries = db.xquery(%|
         SELECT * FROM entry
-        ORDER BY id DESC
+        ORDER BY updated_at DESC
         LIMIT #{per_page}
         OFFSET #{per_page * (page - 1)}
       |)
