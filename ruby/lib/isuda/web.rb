@@ -10,6 +10,9 @@ require 'rack/utils'
 require 'sinatra/base'
 require 'tilt/erubis'
 
+require 'redis'
+require 'hiredis'
+
 module Isuda
   class Web < ::Sinatra::Base
     enable :protection
@@ -64,6 +67,11 @@ module Isuda
             mysql.query_options.update(symbolize_keys: true)
             mysql
           end
+      end
+
+      def redis
+        Thread.current[:redis] ||=
+          Redis.new(:host => "127.0.0.1", :port => 6379, driver: :hiredis)
       end
 
       def register(name, pw)
