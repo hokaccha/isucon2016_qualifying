@@ -123,7 +123,9 @@ module Isuda
       end
 
       def load_stars(keyword)
-        redis.lrange(redis_key_for_star(keyword), 0, -1)
+        redis.lrange(redis_key_for_star(keyword), 0, -1).map do |user_name|
+          { 'user_name' => user_name }
+        end
       end
 
       def redis_key_for_star(keyword)
