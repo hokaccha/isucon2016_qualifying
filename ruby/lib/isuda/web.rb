@@ -282,7 +282,7 @@ module Isuda
 
     post '/stars' do
       keyword = params[:keyword]
-      db.xquery(%| select 1 from entry where keyword = ? |, keyword).first or halt(404)
+      db.xquery(%| select 1 from entry where keyword = ? limit 1 |, keyword).first or halt(404)
 
       redis.rpush(redis_key_for_star(keyword), params[:user])
 
