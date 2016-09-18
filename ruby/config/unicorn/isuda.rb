@@ -1,5 +1,3 @@
-require 'logger'
-
 worker_processes 20
 preload_app true
 listen '/tmp/app.sock'
@@ -7,9 +5,6 @@ listen '/tmp/app.sock'
 timeout 120
 
 pid "/tmp/unicorn.pid"
-stderr_path "/tmp/unicorn-isuda-err.log"
-stdout_path "/tmp/unicorn-isuda-out.log"
-logger Logger.new($stderr).tap{|l| l.formatter = Logger::Formatter.new }
 
 before_fork do |server, worker|
   old_pid_path = "/home/isucon/webapp/ruby/unicorn-isuda.pid.oldbin"
