@@ -90,6 +90,8 @@ module Isuda
       end
 
       def is_spam_content(content)
+        return false if ENV['RACK_ENV'] == 'development'
+
         isupam_uri = URI(settings.isupam_origin)
         res = Net::HTTP.post_form(isupam_uri, 'content' => content)
         validation = JSON.parse(res.body)
