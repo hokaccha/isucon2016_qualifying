@@ -13,6 +13,8 @@ require 'tilt/erubis'
 require 'redis'
 require 'hiredis'
 
+require './aho_corasick_matcher'
+
 module Isuda
   class Web < ::Sinatra::Base
     enable :protection
@@ -104,21 +106,36 @@ module Isuda
       end
 
       def htmlify(content)
-        pattern = regexp_keywords.join('|')
-        kw2hash = {}
-        hashed_content = content.gsub(/(#{pattern})/) {|m|
-          matched_keyword = $1
-          "isuda_#{Digest::SHA1.hexdigest(matched_keyword)}".tap do |hash|
-            kw2hash[matched_keyword] = hash
+        entries = db.xquery(%| select keyword from entry order by character_length(keyword) desc |)
+        keywords = entries.map {|entry| entry[:keyword]}.uniq
+
+        keywords << "\n"
+
+        matcher = AhoCorasickMatcher.new(keywords)
+        puts 'match =>'
+        p matcher.match(content)
+        idx = 0
+        result = []
+        puts 'result =>'
+        p result
+        matcher.result.each do |pos, keyword|
+          prefix = content[idx, pos - idx]
+          result << prefix
+
+          if keyword == "\n"
+            result << "<br />\n"
+            idx = pos + 1
+          else
+            keyword_url = url("/keyword/#{Rack::Utils.escape_path(keyword)}")
+            result << '<a href="'
+            result << keyword_url
+            result << '">'
+            result << Rack::Utils.escape_html(keyword)
+            result << '</a>'
+            idx = pos + keyword.length
           end
-        }
-        escaped_content = Rack::Utils.escape_html(hashed_content)
-        kw2hash.each do |(keyword, hash)|
-          keyword_url = url("/keyword/#{Rack::Utils.escape_path(keyword)}")
-          anchor = '<a href="%s">%s</a>' % [keyword_url, Rack::Utils.escape_html(keyword)]
-          escaped_content.gsub!(hash, anchor)
         end
-        escaped_content.gsub(/\n/, "<br />\n")
+        result.join
       end
 
       def uri_escape(str)
